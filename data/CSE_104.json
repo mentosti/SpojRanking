@@ -1,5 +1,396 @@
 {
   "courseName": "CSE 104",
-  "lastUpdated": "2026-04-13T14:20:51.862Z",
-  "users": {}
+  "lastUpdated": "2026-04-13T14:59:00.710Z",
+  "users": {
+    "eiulegiabao": {
+      "username": "eiulegiabao",
+      "problems": {
+        "EIEVERYN": {
+          "code": "EIEVERYN",
+          "submissions": [
+            {
+              "id": 39295,
+              "time": "2026-04-11T04:02:31.316234+00:00",
+              "points": 0.111,
+              "result": "IR",
+              "language": "JAVA8",
+              "runTime": 1.27972312,
+              "memory": 34048
+            },
+            {
+              "id": 39296,
+              "time": "2026-04-11T04:07:00.995626+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA8",
+              "runTime": 3.040342433,
+              "memory": 92536
+            }
+          ]
+        },
+        "EIINCRDES": {
+          "code": "EIINCRDES",
+          "submissions": [
+            {
+              "id": 39304,
+              "time": "2026-04-11T11:39:50.190682+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 2.9684972240000005,
+              "memory": 100616
+            }
+          ]
+        },
+        "EIUMADIS": {
+          "code": "EIUMADIS",
+          "submissions": [
+            {
+              "id": 39325,
+              "time": "2026-04-13T10:49:12.574570+00:00",
+              "points": 0.6,
+              "result": "TLE",
+              "language": "JAVA8",
+              "runTime": 12.674995487,
+              "memory": 90648
+            },
+            {
+              "id": 39330,
+              "time": "2026-04-13T10:55:01.655555+00:00",
+              "points": 0,
+              "result": "IR",
+              "language": "JAVA8",
+              "runTime": 3.405923701,
+              "memory": 91024
+            },
+            {
+              "id": 39331,
+              "time": "2026-04-13T10:55:21.751518+00:00",
+              "points": 0.6,
+              "result": "TLE",
+              "language": "JAVA8",
+              "runTime": 13.031967133,
+              "memory": 90416
+            },
+            {
+              "id": 39333,
+              "time": "2026-04-13T10:57:02.752560+00:00",
+              "points": 0.6,
+              "result": "TLE",
+              "language": "JAVA8",
+              "runTime": 12.088294549,
+              "memory": 90772
+            },
+            {
+              "id": 39352,
+              "time": "2026-04-13T11:13:23.980993+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA8",
+              "runTime": 3.3969985480000005,
+              "memory": 90612
+            }
+          ]
+        },
+        "EIUTHU": {
+          "code": "EIUTHU",
+          "submissions": [
+            {
+              "id": 39294,
+              "time": "2026-04-11T03:02:42.360392+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA8",
+              "runTime": 1.5893903089999997,
+              "memory": 33280
+            }
+          ]
+        },
+        "EIUTRIGLE": {
+          "code": "EIUTRIGLE",
+          "submissions": [
+            {
+              "id": 39310,
+              "time": "2026-04-12T04:43:49.818745+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA8",
+              "runTime": 4.945417295,
+              "memory": 37852
+            }
+          ]
+        }
+      }
+    },
+    "phuc_tuong7706": {
+      "username": "phuc_tuong7706",
+      "problems": {
+        "EIEVERYN": {
+          "code": "EIEVERYN",
+          "submissions": [
+            {
+              "id": 39302,
+              "time": "2026-04-11T11:06:37.958790+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 2.56642884,
+              "memory": 103832
+            }
+          ]
+        },
+        "EIINCRDES": {
+          "code": "EIINCRDES",
+          "submissions": [
+            {
+              "id": 39303,
+              "time": "2026-04-11T11:07:33.555947+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 2.961968788,
+              "memory": 99928
+            }
+          ]
+        },
+        "EIMONE": {
+          "code": "EIMONE",
+          "submissions": [
+            {
+              "id": 39300,
+              "time": "2026-04-11T11:05:37.787596+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 1.1606055910000002,
+              "memory": 45952
+            }
+          ]
+        },
+        "EIPOINT": {
+          "code": "EIPOINT",
+          "submissions": [
+            {
+              "id": 39301,
+              "time": "2026-04-11T11:06:07.921622+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 0.799369609,
+              "memory": 45056
+            }
+          ]
+        },
+        "EIUMADIS": {
+          "code": "EIUMADIS",
+          "submissions": [
+            {
+              "id": 39305,
+              "time": "2026-04-11T17:05:52.980794+00:00",
+              "points": 0.15,
+              "result": "WA",
+              "language": "JAVA",
+              "runTime": 2.864267644,
+              "memory": 101408
+            },
+            {
+              "id": 39306,
+              "time": "2026-04-11T17:20:54.442748+00:00",
+              "points": 0.05,
+              "result": "WA",
+              "language": "JAVA",
+              "runTime": 2.871350217,
+              "memory": 103272
+            },
+            {
+              "id": 39307,
+              "time": "2026-04-11T17:22:43.448925+00:00",
+              "points": 0.3,
+              "result": "WA",
+              "language": "JAVA",
+              "runTime": 2.89705163,
+              "memory": 101180
+            },
+            {
+              "id": 39308,
+              "time": "2026-04-11T17:27:05.928793+00:00",
+              "points": 0.75,
+              "result": "WA",
+              "language": "JAVA",
+              "runTime": 2.860466603,
+              "memory": 101452
+            },
+            {
+              "id": 39309,
+              "time": "2026-04-11T17:30:13.511502+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 2.889783897,
+              "memory": 100992
+            }
+          ]
+        },
+        "EIUTHU": {
+          "code": "EIUTHU",
+          "submissions": [
+            {
+              "id": 39298,
+              "time": "2026-04-11T11:03:36.520805+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 1.304858395,
+              "memory": 44800
+            }
+          ]
+        },
+        "EIUTRIGLE": {
+          "code": "EIUTRIGLE",
+          "submissions": [
+            {
+              "id": 39299,
+              "time": "2026-04-11T11:04:53.346249+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 2.391982552,
+              "memory": 47488
+            }
+          ]
+        }
+      }
+    },
+    "pdq": {
+      "username": "pdq",
+      "problems": {
+        "EIEVERYN": {
+          "code": "EIEVERYN",
+          "submissions": [
+            {
+              "id": 39343,
+              "time": "2026-04-13T11:04:22.930381+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 2.901087224,
+              "memory": 106192
+            }
+          ]
+        },
+        "EIINCRDES": {
+          "code": "EIINCRDES",
+          "submissions": [
+            {
+              "id": 39345,
+              "time": "2026-04-13T11:05:30.812221+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 3.1611981030000003,
+              "memory": 95660
+            }
+          ]
+        },
+        "EIMONE": {
+          "code": "EIMONE",
+          "submissions": [
+            {
+              "id": 39336,
+              "time": "2026-04-13T10:59:01.867715+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 1.166672466,
+              "memory": 46208
+            }
+          ]
+        },
+        "EIPOINT": {
+          "code": "EIPOINT",
+          "submissions": [
+            {
+              "id": 39338,
+              "time": "2026-04-13T11:00:33.096172+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 0.7876221030000001,
+              "memory": 44928
+            }
+          ]
+        },
+        "EIUTHU": {
+          "code": "EIUTHU",
+          "submissions": [
+            {
+              "id": 39342,
+              "time": "2026-04-13T11:03:22.733144+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 1.289056961,
+              "memory": 48384
+            },
+            {
+              "id": 39349,
+              "time": "2026-04-13T11:07:52.246494+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 1.2927212179999998,
+              "memory": 48512
+            }
+          ]
+        },
+        "EIUTRIGLE": {
+          "code": "EIUTRIGLE",
+          "submissions": [
+            {
+              "id": 39347,
+              "time": "2026-04-13T11:06:22.871101+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA",
+              "runTime": 3.755693037,
+              "memory": 46668
+            }
+          ]
+        }
+      }
+    },
+    "ducnguyen_1210": {
+      "username": "ducnguyen_1210",
+      "problems": {
+        "EIMONE": {
+          "code": "EIMONE",
+          "submissions": [
+            {
+              "id": 39312,
+              "time": "2026-04-13T09:44:29.838691+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA8",
+              "runTime": 1.4150852440000001,
+              "memory": 33664
+            }
+          ]
+        },
+        "EIUTHU": {
+          "code": "EIUTHU",
+          "submissions": [
+            {
+              "id": 39324,
+              "time": "2026-04-13T10:48:36.083955+00:00",
+              "points": 1,
+              "result": "AC",
+              "language": "JAVA8",
+              "runTime": 1.571251285,
+              "memory": 41472
+            }
+          ]
+        }
+      }
+    }
+  }
 }

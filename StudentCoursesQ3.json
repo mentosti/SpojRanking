@@ -1,0 +1,39 @@
+[
+    {
+        "name": "CSE 104",
+        "users": [
+            "phuc_tuong7706",
+            "pdq",
+            "ducnguyen_1210",
+            "eiulegiabao"
+        ],
+        "problemSets": [
+            {
+                "name": "Set 1",
+                "start": "2026-04-06T00:00:00+07:00",
+                "end": "2026-04-22T23:59:59+07:00",
+                "problems": [
+                    "EIUTRIGLE",
+                    "EIINCRDES",
+                    "EIEVERYN",
+                    "EIUTHU",
+                    "EIPOINT",
+                    "EIMONE"
+                ]
+            },
+            {
+                "name": "Set 2",
+                "start": "2026-04-06T00:00:00+07:00",
+                "end": "2026-04-29T23:59:59+07:00",
+                "problems": [
+                    "EIUCUBES2",
+                    "EIUCUBES",
+                    "EIUBIRTH",
+                    "EIUFING",
+                    "EISNAIL",
+                    "EIUMADIS"
+                ]
+            }
+        ]
+    }
+]

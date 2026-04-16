@@ -1,0 +1,607 @@
+<!DOCTYPE HTML
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>CIT/EIU - Grading System</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <!--
+    Author: Minh Ngoc
+    Version: 2.1
+    This programm is used to manage student's submissions of programming classes. Do not use for any other purpose!
+    -->
+</head>
+
+<body>
+    <div>
+        <table id="updateTable" cellpadding="0" cellspacing="0">
+            <!-- Generate table here -->
+        </table>
+        <style type="text/css">
+            #updateTable tr td,
+            #updateTable tr th {
+                border-top: 1px solid #555;
+                border-left: 1px solid #555;
+            }
+
+            #updateTable tr:last-child td,
+            #updateTable tr:last-child th {
+                border-bottom: 1px solid #555;
+            }
+
+            #updateTable tr td:last-child,
+            #updateTable tr th:last-child {
+                border-right: 1px solid #555;
+            }
+
+            #updateTable tr th {
+                font-weight: normal !important;
+                padding: 2px;
+            }
+
+            #updateTable tr th {
+                min-width: 30px;
+            }
+
+            #updateTable tr td.right {
+                text-align: right;
+                padding: 0px 3px 0px 3px;
+            }
+
+            #updateTable tr td.left {
+                padding: 0px 3px 0px 3px;
+            }
+
+            #updateTable tr td.center {
+                padding: 0px 3px 0px 3px;
+                text-align: center;
+            }
+
+            #updateGrade {
+                display: none;
+            }
+
+            #updateTable a {
+                text-decoration: none;
+            }
+
+            #updateTable tr:nth-child(3n) {
+                background-color: #ffe0e0;
+            }
+
+            #updateTable tr:nth-child(3n+1) {
+                background-color: #ddffdd;
+            }
+
+            #updateTable tr th {
+                background-color: #ccccff;
+            }
+
+            #updateTable tr.summary {
+                font-weight: bold;
+                background-color: #ccccff;
+            }
+        </style>
+    </div>
+    <br />
+    <button id="updateGrade">
+        Update Grades
+    </button>
+    <div id="content">
+        <i>Last updated: <span id="lastupdated"></span></i>
+        <br />
+        <i><strong></strong></i>
+    </div>
+    <script type="text/javascript">
+
+        window.setTimeout(function () { window.location.reload(1); }, 360 * 1000);
+
+        $(function () {
+
+            window.sources = {};
+            function addSources(studentId, problemId, submissionId) {
+                if (!sources[problemId]) {
+                    sources[problemId] = {};
+                }
+                sources[problemId][studentId] = submissionId;
+            }
+
+            function parseDateSimple(dateString) {
+                return new Date(dateString.replace(' ', 'T'));
+            }
+
+            window.dateTimeToString = function (date) {
+                return (new Date(date.getTime() + 6 * 3600 * 1000)).toString();
+            }
+
+            Date.prototype.addHours = function (h) {
+                var copiedDate = new Date(this.getTime());
+                copiedDate.setHours(copiedDate.getHours() + h);
+                return copiedDate;
+            }
+
+            var Problem = function (problemId, deadLine) {
+                this.problemId = problemId;
+                this.deadLine = deadLine;
+                this.groups = {};
+                this.statistic = {
+                    submission: 0, totalGrade: 0, AC: 0, totalValidGrade: 0,
+                    average: function () {
+                        return Math.round((this.totalValidGrade == 0 ? 0 : this.totalGrade / this.totalValidGrade) * 1) / 1;
+                    }
+                };
+            }
+
+            Problem.prototype = {
+                extendTime: function (groupId, start, end, rate) {
+                    this.groups[groupId] = { 'start': start, 'end': end, 'rate': rate };
+                    return this;
+                },
+
+                getRate: function (time, studentGroups) {
+                    if (typeof time == 'string') {
+                        time = parseDateSimple(time);
+                    }
+                    if (time <= this.deadLine) {
+                        return 1;
+                    }
+
+                    var max = 0;
+                    for (var groupName in this.groups) {
+                        var group = this.groups[groupName];
+                        if (group && studentGroups[groupName] && group.start <= time && time <= group.end && max < group.rate) {
+                            max = Math.min(1, group.rate);
+                        }
+                    }
+                    return max;
+                },
+
+                addSubmission: function (grade) {
+                    this.statistic.submission++;
+                    this.statistic.AC += (grade == 100 ? 1 : 0);
+                },
+
+                addGrade: function (grade) {
+                    this.statistic.totalGrade += grade;
+                    this.statistic.totalValidGrade++;
+                },
+
+                getSummaryString: function () {
+                    return this.statistic.average() + "/" + this.statistic.AC + "/" + this.statistic.submission;
+                }
+            }
+
+            var problems = [];
+
+            problems.add = function (problemId, deadLine) {
+                if (typeof deadLine == 'string') {
+                    deadLine = parseDateSimple(deadLine);
+                }
+
+                var problem = new Problem(problemId, deadLine); // { 'problemId': problemId, 'deadLine': deadLine };
+                problems.push(problem);
+                return problem;
+            }
+
+            var timeOfDay = 24 * 3600 * 1000;
+            problems.addAll = function (deadLine, problemIds) {
+                if (typeof deadLine == 'string') {
+                    deadLine = parseDateSimple(deadLine);
+                }
+                $(problemIds).each(function (index, problemId) {
+                    var problem = problems.add(problemId, deadLine);
+
+                    /* if (['EIMEMCARD', 'EICARDSYS'].indexOf(problemId) >= 0) {
+                         problem.extendTime('retest1', parseDateSimple('2018-05-03T15:45:59+07:00'), parseDateSimple('2018-05-16T23:59:59+07:00'), 1);
+                     }
+
+                     if (['EILAPTOP2'].indexOf(problemId) >= 0) {
+                         problem.extendTime('retest1', parseDateSimple('2018-05-03T15:45:59+07:00'), parseDateSimple('2018-05-26T23:59:59+07:00'), 1);
+                     }*/
+                    //problem.extendTime('late', parseDateSimple('2022-01-01T15:45:59+07:00'), parseDateSimple('2022-03-28T23:59:59+07:00'), 0.7);
+                });
+            }
+
+            //
+            /*
+            // Modify problem, change co-author
+            $('select[name="grown"]').val(3472); setTimeout(function () { $('input[name="Modify"][value="Modify"]').click(); }, 200);
+
+            // Change problemset name
+            $('[name$="_category"]').each(function () {
+                $(this).val($(this).val().replace(/eis20_final/, 'dsa_final').replace('eis20_midterm', 'dsa_mid'));
+            });
+
+            $('tr.problemrow td:nth-child(4)').text().split('\n').join(' ')
+            var list = 'EIPAIR EIUGIFT EIUGIFTS EIUAPPEA EIUBIRTH'.split(' ');
+            function addProblem(list, problemSet) {
+                if (list.length == 0) return;
+
+                var problemCode = list.pop().trim();
+                if (problemCode) {
+                    if ($('tr.problemrow td.form:contains("' + problemCode + '")').length == 0) {
+                        var value = $('select[name="new_id"] option:contains("' + problemCode + '")').prop('value').trim();
+                        console.log(value);
+                        $.post('/EIUPROGR/edit/', {
+                            'add_probl': 1,
+                            'form_action': 'modify_addproblem',
+                            'add_id': 3915,
+                            'new_id': value,
+                            'new_startview': '2021-07-19 08:50:00',
+                            'new_start': '2021-07-19 08:55:00',
+                            'new_end': '2035-01-21 08:30:00',
+                            'new_sc_from': '0000-00-00 00:00:00',
+                            'info': '',
+                            'category': problemSet,
+                            'score': 1,
+                        }, function (data) {
+                            console.log(data)
+                        });
+                    }
+
+                }
+                setTimeout(function () { addProblem(list, problemSet); }, 1000);
+            }
+            addProblem(list, 'dsa_02');
+            */
+
+            var startTime = '2025-12-29T00:00:00Z'; //SPOJ Time and format, startTime of current Quater
+            problems.addAll('2026-03-31T23:59:59+07:00', Array.from(new Set("EIUBALANCE EIURETIRE2 EIAPP21222FQ3 EIAPP24252FQ4 EIAPP24253FQ4".split(' '))));
+            problems.addAll('2026-03-24T23:59:59+07:00', Array.from(new Set("EIUBHOUSE EIUCREDIT EIBANKLOAN2 EIBANKLOAN3 EIUCARLOAN2".split(' '))));
+            problems.addAll('2026-03-17T23:59:59+07:00', Array.from(new Set("EIUFF2 EIUFF EIVINFASTBATERY EIUPURCHASE3 EIPURCHASE1 EIPURCHASE".split(' '))));
+
+            problems.addAll('2026-02-10T23:59:59+07:00', Array.from(new Set("EIVCHR3 EIVCHR2 EIVCHR1 EIINTEREST1 EIUPASSBOOK".split(' '))));
+            problems.addAll('2026-02-03T23:59:59+07:00', Array.from(new Set("EIAPP21222FQ2 EIAPP21222FQ1 EIGROSS2 EIGROSS EIDINRATE EIBANKRATE EISALARY2 EITAX".split(' '))));
+            problems.addAll('2026-01-27T23:59:59+07:00', Array.from(new Set("EIUMARKUP EIBANKFEE2 EIBANKFEE EIMEMCARD EIAUCTION EIUDISCOUNT3 EIUSALES EIUCHRMS".split(' '))));
+            problems.addAll('2026-01-20T23:59:59+07:00', Array.from(new Set("EIDISCOUNT2 EIDISCOU EIUCUBES2 EIUCUBES EIUBIRTH EIUFING EISNAIL EIUMADIS".split(' '))));
+            problems.addAll('2026-01-20T23:59:59+07:00', Array.from(new Set("EIUTRIGLE EIINCRDES EIEVERYN EIUTHU EIPOINT EIMONE".split(' '))));
+
+            // (ei130094nguyen, "Nguyen Van Nguyen", 1311210094);
+            var Student = function (id, name, code) {
+                this.id = id;
+                this.name = name;
+                this.code = code;
+
+                this.problems = [];
+                this.cheets = [];
+                this.group = {};
+                this.statistic = {
+                    submission: 0,
+                    totalGrade: 0,
+                    AC: 0,
+                    average: function () {
+                        return Math.round((this.submission == 0 ? 0 : this.totalGrade / this.submission) * 1) / 1;
+                    }
+                };
+
+                this.addCheet = function () {
+                    this.cheets = Array.prototype.slice.call(arguments);
+                    return this;
+                }
+
+                this.isCheet = function (problemCode) {
+                    return this.cheets.indexOf(problemCode) >= 0;
+                }
+
+                this.addGroup = function (groupName) {
+                    this.group[groupName] = true;
+                    return this;
+                }
+            }
+
+            var students = [];
+            students.add = function (id, name, code) {
+                var student = new Student(id, name, code);
+                students.push(student);
+                return student;
+            }
+
+            students.add("hanh26", "Lê Đình Hoàng Anh", 2431200002);
+            students.add("lekiuahn", "Lê Kiều Anh", 2331220036);
+            students.add("eiuanhle", "Lê Nguyễn Nhật Anh", 2331200003);
+            students.add("que_anh17", "Phạm Vương Quế Anh", 2431220001);
+            students.add("eiutuananhtran", "Trần Tuấn Anh", 2231200063);
+            students.add("concacc_11", "Đặng Gia Bảo", 2231220017);
+            students.add("eiubaohuynh", "Huỳnh Gia Bảo", 2231200004);
+            students.add("eiubaole06", "Lê Trần Gia Bảo", 2331200230);
+            students.add("eiubaonguyen", "Nguyễn Gia Bảo", 2231200039);
+            students.add("janlearncode", "Phạm Như Bình", 2431200013);
+            students.add("cuong111", "Vũ Đức Cương", 2331220002);
+            students.add("thanhdanh31_05", "Châu Thành  Danh", 2331220055);
+            students.add("dung_cse103", "Đoàn Tiến Dũng", 2431200023);
+            students.add("dungnt74", "Nguyễn Tấn Dũng", 2331200013);
+            students.add("tri_dung", "Trần Thanh Trí Dũng", 2431200024);
+            students.add("duy_lu_cit23", "Lữ Hoàng Duy", 2331220003);
+            students.add("duy_mai_cit23", "Mai Khả Duy", 2331200016);
+            students.add("dovandat", "Đỗ Văn Đạt", 2431200033);
+            students.add("dat_2005", "Nguyễn Tiến Đạt", 2331220039);
+            students.add("dat_tran020", "Trần Minh Đạt", 2331200020);
+            students.add("ductranle_06", "Trần Lê Anh Đức", 2431200040);
+            students.add("hung23", "Trần Hữu Hùng", 2331200149);
+            students.add("skailaof", "Phạm Ngô Gia Huy", 2331200034);
+            students.add("trangiahuy", "Trần Gia Huy", 2331200035);
+            students.add("huyen_caothi", "Cao Thị Ngọc Huyền", 2331200195);
+            students.add("eiukhangnm1", "Nguyễn Mạnh Khang", 2331200045);
+            students.add("khoa_nguyentra", "Nguyễn Trà Đăng Khoa", 2431200069);
+            students.add("kiet_23", "Dương Tấn Kiệt", 2331200056);
+            students.add("ei24skiethoang", "Hoàng Anh Kiệt", 2231200101);
+            students.add("long120905", "Nguyễn Duy Long", 2331220011);
+            students.add("long_725", "Nguyễn Minh Long", 2331200159);
+            students.add("lucvuong", "Vương Tấn Lực", 2331220014);
+            students.add("", "Lương Thị Trà My", 2331220015);
+            students.add("eiunamhuu111", "Nguyễn Hữu Nam", 2131200010);
+            students.add("hong_ngoc", "Lê Dương Hồng Ngọc", 2331220017);
+            students.add("eiu_trg_nguyen", "Lê Trương  Nguyên", 2231200106);
+            students.add("ryan23", "Lâm Trọng Nguyễn", 2331220046);
+            students.add("eiuleducnhan", "Lê Đức Nhân", 2331200078);
+            students.add("eiuhuunhan", "Nguyễn Hữu Nhân", 2331200165);
+            students.add("ei23wtannhan", "Nguyễn Tấn Nhân", 2131200013);
+            students.add("eiu_nhat_ng1", "Nguyễn Minh Nhật", 2231200126);
+            students.add("hoainho21", "Phạm Thị Hoài Nhớ", 2331220020);
+            students.add("nhu_huynh", "Huỳnh Ngọc Khánh Như", 2331200081);
+            students.add("nhu_nq174", "Nguyễn Quỳnh Như", 2331220021);
+            students.add("tanphu123", "Huỳnh Tân Phú", 2331200168);
+            students.add("eiuphuoctran", "Trần Hưng Phước", 2431200121);
+            students.add("", "Hồng Phú Quý", 2431200129);
+            students.add("ei24sminhtan", "Nguyễn Đình Minh Tân", 2231200116);
+            students.add("eiuthachle", "Lê Công Thạch", 2231200036);
+            students.add("eiuthanhng01", "Nguyễn Tuấn Thanh", 2331200100);
+            students.add("zachary_29", "Trương Xuân Thành", 2331200104);
+            students.add("vothithuthao", "Võ Thị Thu Thảo", 2331209002);
+            students.add("thi_cit24", "Hồ Thị Tuyết Thi", 2431200143);
+            students.add("ei25fthuanngo", "Ngô Thế Thuận", 2231200061);
+            students.add("eiuthuannguyen", "Nguyễn Hiếu Thuận", 2331200112);
+            students.add("tientran2107", "Trần Trọng Tiến", 2331200117);
+            students.add("tin_2005", "Nguyễn Trung Tín", 2331200177);
+            students.add("toanphamcit23", "Phạm Song Toàn", 2331220029);
+            students.add("eiutramvo", "Võ Ngọc Trâm", 2231200029);
+            students.add("thientri2539", "Nguyễn Đại Thiện Trí", 2331200210);
+            students.add("trandangtri", "Trần Đặng Trí", 2331220064);
+            students.add("tronghoang23", "Hoàng Đức Trọng", 2331200211);
+            students.add("truc_ta_cit24", "Tạ Thanh Trúc", 2431200170);
+            students.add("thanhtrung_14", "Trần Thanh Trung", 2331200124);
+            students.add("lamtu", "Lâm Ngọc Tú", 2331220032);
+            students.add("nqtung", "Nguyễn Quang Tùng", 2331200131);
+            students.add("tung_vu_cit24", "Vũ Quang Tùng", 2431200178);
+            students.add("huynhdacuy", "Huỳnh Đắc Uy", 2431200181);
+            students.add("tranvy_1606", "Trần Tuấn Vỹ", 2331220053);
+            students.add("inphan01", "Phan Lê Như Yến", 2331200216);
+
+
+            var retest1 = students.map(x => x.id).filter(x => x.length > 0);
+
+            // /*
+            $(students).each(function (index, student) {
+                for (var i = 0; i <= 5; i++) {
+                    // student.addGroup('delay' + i);
+                    // student.addGroup('retest1');
+                }
+
+                if (retest1.indexOf(student.id) >= 0) {
+                    student.addGroup('retest1');
+                };
+                student.addGroup('late');
+            });
+            // */
+
+            var buildTable = function () {
+                $('#updateTable').html('');
+                var theads = ['<tr><th rowspan="1">#</td><th rowspan="1">Code</th><th rowspan="1" style="padding: 0px 75px 0px 75px;">Name</th><th rowspan="1">SpojId</th><th>Grade</th>'];
+                for (var j = 0; j < problems.length; j++) {
+                    var problem = problems[j];
+                    theads.push('<th> <a target="_blank" href="'
+                        + 'http://www.spoj.com/EIUPROGR/problems/' + problem.problemId + '" title="'
+                        + problem.deadLine.addHours(0) + '">'
+                        + problem.problemId + '</a></th>');
+                }
+                theads.push('<th>AC/Sub</th>');
+                theads.push('</tr>');
+                $('#updateTable').html(theads.join(''));
+            }
+
+            var addTableRow = function (student) {
+                var rows = ['<tr><td class="center">' + ($('#updateTable tr').length) + '</td><td class="center">'
+                    + student.code + '</td><td class="left">'
+                    + student.name + '</td><td class="center"><a target="_blank" href="http://www.spoj.com/EIUPROGR/users/' + student.id + '">'
+                    + student.id + '</a></td>'];
+
+                $(student.grades).each(function (index, grade) {
+                    //rows.push('<td class="right"><a href="http://www.spoj.com/EIUPROGR/files/src/save/' + grade.submissionId + '">' + (grade.score !== null ? grade.score : "") + '</a></td>');
+                    rows.push('<td class="right">' + (grade.score !== null ? (grade.score < 0 ? ('<strong>0</strong>') : grade.score) : "") + '</td>');
+                });
+                rows.push('</tr>');
+                $('#updateTable').append(rows.join(''));
+            }
+
+            var addSummary = function (grades) {
+                var rows = ['<tr class="summary"><td class="center" colspan="4">Summary (Avg Score / AC / Submission)</td>'];
+
+                $(grades).each(function (index, grade) {
+                    rows.push('<td class="right">' + (grade.score !== null ? grade.score : "") + '</td>');
+                });
+                rows.push('</tr>');
+                $('#updateTable').append(rows.join(''));
+            }
+
+            $('#updateGrade').click(function () {
+                buildTable();
+                startUpdate();
+            });
+
+            function startUpdate() {
+                var newData = {};
+                var retestData = {};
+                //$.getJSON('./../NewData.json')
+                //.done(function (updatedData) { newData = updatedData; })
+                //.always(function () {
+                //    $.getJSON('./../Data.ex1.json')
+                //    .done(function (updatedData) { retestData = updatedData })
+                //    .always(function () {
+                $.getJSON('./../Data.json', { _: Date.now() })
+                    .done(function (data) {
+                        onUpdateData(newData, mergeSubmission(data, retestData));
+                    });
+                //    });
+                //});
+            }
+
+            function mergeSubmission(data, retestData) {
+                var reUsers = retestData.Users;
+                for (var userId in reUsers) {
+                    var user = reUsers[userId];
+                    for (var probId in user.Problems) {
+                        if (data.Users[userId]) {
+                            if (!data.Users[userId].Problems[probId]) {
+                                data.Users[userId].Problems[probId] = user.Problems[probId];
+                            } else {
+                                var mergeProblem = data.Users[userId].Problems[probId];
+                                mergeProblem.Submissions = mergeProblem.Submissions.concat(user.Problems[probId].Submissions);
+                            }
+                        }
+                    }
+                }
+                return data;
+            }
+
+            function mapSpojId(users, problemsInfo) {
+                $(students).each(function (index, student) {
+                    for (var spojId in users) {
+                        if (users[spojId].Username == student.id) {
+                            student.spojId = spojId;
+                        }
+                    }
+                });
+
+                $(problems).each(function (index, problem) {
+                    for (var spojId in problemsInfo) {
+                        if (problemsInfo[spojId].Code === problem.problemId) {
+                            problem.spojId = spojId;
+                        }
+                    }
+                });
+            }
+
+            function getValidSubmission(users, newData, student, problem) {
+                if (users[student.spojId] && users[student.spojId].Problems[problem.spojId]
+                    || newData && newData[student.id] && newData[student.id][problem.problemId]) {
+
+                    var submissions = ((users[student.spojId] && users[student.spojId].Problems[problem.spojId]) ? users[student.spojId].Problems[problem.spojId].Submissions : []) || [];
+                    if (newData && newData[student.id] && newData[student.id][problem.problemId]) {
+                        var newSubmissions = newData[student.id][problem.problemId];
+                        var lastId = submissions.length > 0 ? submissions[submissions.length - 1].Id : 0;
+                        newSubmissions.forEach(function (sub) {
+                            if (sub.Id > lastId) {
+                                submissions.push(sub);
+                            }
+                        });
+                    }
+                    return submissions.filter(s => s.Time >= startTime);
+                }
+                return null;
+            }
+
+            function onUpdateData(newData, data) {
+
+                $('#lastupdated').text(parseDateSimple(data.LastUpdated));
+
+                var users = data.Users;
+                var problemsInfo = data.ProblemsInfo;
+
+                mapSpojId(users, problemsInfo);
+                var summary = { student: 0, submission: 0, AC: 0, score: 0 };
+
+                $(students).each(function (index, student) {
+                    student.grades = [{ id: null, score: null }];
+                    var studentSummary = { submission: 0, AC: 0, grade: 0, hasSubmit: false };
+
+                    $(problems).each(function (index, problem) {
+                        var problemGrade = { id: problem.problemId, score: null, submissionId: null };
+
+                        var submissions = getValidSubmission(users, newData, student, problem);
+                        if (submissions) {
+                            studentSummary.submission += submissions.length;
+                            summary.submission += submissions.length;
+
+                            $(submissions).each(function (index, submission) {
+                                studentSummary.hasSubmit = true;
+                                var isAccepted = submission.Score === 100 ? 1 : 0;
+                                studentSummary.AC += isAccepted;
+                                summary.AC += isAccepted;
+
+                                var rate = problem.getRate(submission.Time, student.group);
+                                if (rate > 0) {
+                                    problem.addSubmission(submission.Score);
+                                    if (problemGrade.score === null || problemGrade.score < rate * submission.Score) {
+
+                                        problemGrade.score = Math.round(100 * rate * submission.Score) / 100;
+                                        problemGrade.submissionId = submission.Id;
+                                        addSources(student.id, problem.problemId, submission.Id);
+                                    }
+                                }
+                            });
+                        }
+
+                        if (problemGrade.score !== null) {
+                            if (student.isCheet(problem.problemId)) {
+                                problemGrade.score = 0;
+                            }
+                            problem.addGrade(problemGrade.score);
+                        }
+                        studentSummary.grade += problemGrade.score || 0;
+                        student.grades.push(problemGrade);
+                    });
+
+                    if (studentSummary.hasSubmit) {
+                        student.grades[0].score = Math.min(Math.round(studentSummary.grade * 1.0 / problems.length), 100);
+                        //Adjust
+                        //student.grades[0].score = Math.min(Math.round(student.grades[0].score * 48/35), 100);
+                        student.grades[0].score = Math.round(Math.pow(student.grades[0].score, 1 / 2) * 10);
+                        student.grades.push({ id: null, score: studentSummary.AC + '/' + studentSummary.submission });
+                        summary.score += student.grades[0].score;
+                        summary.student++;
+                    } else {
+                        student.grades.push({ id: null, score: null });
+                    }
+
+                    addTableRow(student);
+                })
+
+                var summaryGrades = [{ id: null, score: Math.round(summary.score / (summary.student || 1)) }];
+                $(problems).each(function (index, problem) { summaryGrades.push({ id: null, score: problem.getSummaryString() }); });
+                summaryGrades.push({ id: null, score: summary.AC + '/' + summary.submission });
+                addSummary(summaryGrades);
+            }
+
+            // Debug only
+            window.problems = problems;
+            window.students = students;
+            window.parseDateSimple = parseDateSimple;
+
+            window.setTimeout(function () {
+                buildTable();
+                startUpdate();
+            }, 1000);
+
+            $('#updateTable').on('click', 'tr', function (event) {
+                if (!event.ctrlKey) {
+                    $('#updateTable tr').css('background-color', '');
+                }
+                $(this).css('background-color', '#ccc');
+            });
+        });
+
+        function getSources(problems) {
+            var newSources = {};
+            problems.forEach(function (problem) {
+                newSources[problem] = sources[problem];
+            });
+            return JSON.stringify(newSources);
+        }
+
+        // getSources(['EICON', 'EIUEAGRP', 'EIUDEG', 'EIHCON']);
+        // getSources(['EIUDFS1', 'EIUDFS2', 'EIUBFS1', 'EIUBFS2', 'EICONP', 'EICONP1']);
+    </script>
+</body>
+
+</html>
